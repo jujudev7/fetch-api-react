@@ -6,14 +6,21 @@ const WeatherComponent = () => {
   // const [data, setData] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const apiKey = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY;
+  // Ajout d'un état error pour gérer et afficher les erreurs de manière plus claire pour l'utilisateur
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Vérification de l'API Key: cela permet de s'assurer que l'API key est définie avant d'essayer de faire la requête, ce qui évite une requête inutile et un potentiel échec
+    if (!apiKey) {
+      console.error("API key is missing");
+      setError("API key is missing");
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const response = await fetch(
-          // `https://api.openweathermap.org/data/2.5/weather?q=London&appid=${apiKey}&units=metric`,
           `https://api.openweathermap.org/data/2.5/weather?q=Paris&appid=${apiKey}&units=metric`
-          // `https://api.openweathermap.org/data/2.5/weather?q=Madrid&appid=${apiKey}&units=metric`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -22,11 +29,12 @@ const WeatherComponent = () => {
         setWeatherData(jsonData);
       } catch (error) {
         console.error("Error fetching weather data:", error);
+        setError("Error fetching weather data");
       }
     };
 
     fetchData();
-  }, []);
+  }, [apiKey]); // Ajout de apiKey comme dépendance dans useEffect pour être sûr que l'effet se déclenche correctement si la clé API change
 
   return (
     <div className="container">
